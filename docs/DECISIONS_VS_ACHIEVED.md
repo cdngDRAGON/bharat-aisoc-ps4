@@ -57,8 +57,8 @@ flowchart TD
 * **What Was Actually Achieved**:
   * **Model**: Loaded `Llama-3.2-1B-Instruct-SpinQuant_INT4_EO8.pte` ($1.13\text{ GB}$ flash footprint) with multi-path SELinux auto-discovery (`context.getExternalFilesDir()`, `filesDir`, `/data/local/tmp/llama/`).
   * **Hardware Targets & Runtime**: ExecuTorch 1.1.0 with XNNPACK Arm Neon acceleration tested on both:
-    1. **Physical OnePlus 15 (`CPH2745`)**: Qualcomm Snapdragon 8 Elite (Oryon CPU / Cortex-X925, OxygenOS Android 15).
-    2. **Google Pixel 9 Reference**: Google Tensor G4 (`Cortex-X4 / A720`, Android 15).
+    1. **Physical OnePlus 15 (`CPH2745`)**: Qualcomm `SM8850` (Snapdragon 8 Elite Gen 5, Android 17 / OxygenOS 17.0, 16 GB RAM).
+    2. **Pixel 9 AVD Emulator Baseline**: Android Studio Pixel 9 Arm64 AVD Emulator (Apple Silicon host).
   * **Throughput**:
     * **OnePlus 15 (Physical)**: **$42.8$ to $50.1\text{ tokens/second}$** (2x PS4 requirement).
     * **Google Pixel 9**: **$82.6$ to $89.7\text{ tokens/second}$** (4x PS4 requirement).
@@ -169,7 +169,7 @@ flowchart TD
     3. Clamped `DEFAULT_MAX_SEQ_LEN` to `384` tokens in `AppSettings.kt`, preventing excessive KV-cache footprint.
     4. Capped `ETLogging` in-memory logs to 500 entries.
     5. Added periodic `System.gc()` after every inference turn to immediately reclaim intermediate buffers.
-  * **Verified Device Telemetry (Pixel 9, Tensor G4 / Cortex-X4 / A720)**:
+  * **Verified Emulator Baseline Telemetry (Pixel 9 Arm64 AVD, Apple Silicon host)**:
     * `TOTAL PSS`: **1666 – 1711 MB** (Strictly $< 1800\text{ MB}$)
     * `Private Dirty`: **1514 – 1568 MB** (Strictly $< 1800\text{ MB}$)
     * `RssAnon`: **1584 – 1612 MB** (Strictly $< 1800\text{ MB}$)
@@ -197,8 +197,8 @@ During the actual implementation, several critical edge cases were discovered th
    * *Issue*: `MainActivity` previously called `finish()` when opening `WelcomeActivity`, causing the app to exit on back press.
    * *Resolution*: Removed `finish()`, preserving proper Android back-stack navigation.
 
-5. **OxygenOS 15 SELinux Sandboxing & Multi-Path Model Discovery (Fixed in Commit `c53fd02`)**:
-   * *Issue*: On Android 15 / OxygenOS 15 (OnePlus 15 `CPH2745`), `/data/local/tmp/llama/` threw `EACCES` permission denied under the `untrusted_app` SELinux domain, causing model load failures.
+5. **OxygenOS Scoped Storage SELinux Sandboxing & Multi-Path Model Discovery (Fixed in Commit `c53fd02`)**:
+   * *Issue*: On Android 17 / OxygenOS 17.0 (OnePlus 15 `CPH2745`), `/data/local/tmp/llama/` threw `EACCES` permission denied under the `untrusted_app` SELinux domain, causing model load failures.
    * *Resolution*: Implemented multi-path discovery prioritizing `context.getExternalFilesDir("llama")` (`/sdcard/Android/data/com.example.executorchllamademo/files/llama/`), which is always readable and mmap-able by untrusted apps.
 
 6. **Reactive Whole-Screen Localization (Fixed in Commit `c53fd02`)**:
@@ -210,7 +210,7 @@ During the actual implementation, several critical edge cases were discovered th
    * *Resolution*: Embedded 3-week roadmap steps (`W1, W2, W3`) directly inside `StructuredTutorCard`, and implemented instant (<10ms) Kotlin evaluation with BKT posterior jumps ($P(L_t): 64\% \to 89\%$).
 
 8. **2769 MB RAM Spike Prevention via Single-Task Singleton Architecture (Fixed in Commit `acb3d08`)**:
-   * *Issue*: Relaunching `MainActivity` via `am start` created a second `ChatViewModel` in the same Linux process, allocating a duplicate 1.13 GB C++ native module and spiking RAM to 2769 MB. Additionally, `VmRSS` double-counted clean 1.13 GB `.pte` mmap file cache (`RssFile`) on high-RAM devices like OnePlus 15 (16GB/24GB).
+   * *Issue*: Relaunching `MainActivity` via `am start` created a second `ChatViewModel` in the same Linux process, allocating a duplicate 1.13 GB C++ native module and spiking RAM to 2769 MB. Additionally, `VmRSS` double-counted clean 1.13 GB `.pte` mmap file cache (`RssFile`) on 16 GB devices like the OnePlus 15.
    * *Resolution*: Added `launchMode="singleTask"` and `configChanges` to `AndroidManifest.xml`, moved native `LlmModule` to a process-wide singleton in `ChatViewModel` `companion object` (`sharedNativeModule`), and strictly measured `RssAnon` in `CurriculumRagEngine.kt`. RAM remains strictly ~1571–1592 MB across arbitrary relaunches.
 
 9. **Multilingual Diagnostic Quizzes Across All 6 Indic Languages (Completed Nov 01, 2026)**:

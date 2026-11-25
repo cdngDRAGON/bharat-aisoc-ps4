@@ -3,7 +3,7 @@
 [![Hardware](https://img.shields.io/badge/SoC-Snapdragon%208%20Elite-blue.svg)](#verified-hardware-benchmarks)
 [![Runtime](https://img.shields.io/badge/Runtime-ExecuTorch%201.1.0%20(XNNPACK%20Neon)-green.svg)](#system-architecture--neuro-symbolic-bkt)
 [![Model](https://img.shields.io/badge/Model-Llama--3.2--1B--Instruct%20(SpinQuant%20INT4)-purple.svg)](#system-architecture--neuro-symbolic-bkt)
-[![RAM](https://img.shields.io/badge/Resident%20RAM-1575--1592%20MB%20(%3C1.8%20GB)-orange.svg)](#verified-hardware-benchmarks)
+[![RAM](https://img.shields.io/badge/Resident%20RAM-1567--1592%20MB%20(%3C1.8%20GB)-orange.svg)](#verified-hardware-benchmarks)
 [![Throughput](https://img.shields.io/badge/Throughput-42.8--50.1%20tok%2Fs%20(%3E=22%20target)-red.svg)](#verified-hardware-benchmarks)
 [![Languages](https://img.shields.io/badge/Languages-6%20Indic%20(EN%2C%20HI%2C%20TA%2C%20TE%2C%20BN%2C%20MR)-yellow.svg)](#system-architecture--neuro-symbolic-bkt)
 
@@ -25,27 +25,27 @@ Pre-compiled release artifacts for the Phase 1 submission:
 
 ## 📊 Verified Hardware Benchmarks
 
-Measured on a physical **OnePlus 15 (`CPH2745`)** powered by the Qualcomm Snapdragon 8 Elite SoC (Oryon CPU cores, Android 15), compared against baseline **Google Pixel 9 (Tensor G4)**:
+Measured on a physical **OnePlus 15 (`CPH2745`)** powered by the Qualcomm `SM8850` (Snapdragon 8 Elite Gen 5, Android 17 / OxygenOS 17.0, 16 GB RAM), alongside our early prototyping baseline on an **Android Studio Pixel 9 Arm64 AVD Emulator (Apple Silicon host)**:
 
-| Evaluation Metric | PS4 Target | Physical OnePlus 15 (`CPH2745`)<br/>Snapdragon 8 Elite | Google Pixel 9<br/>Tensor G4 | Compliance Status |
+| Evaluation Metric | PS4 Target | Physical OnePlus 15 (`CPH2745`)<br/>SM8850 • Android 17 | Pixel 9 AVD Emulator<br/>Apple Silicon Host | Compliance Status |
 | :--- | :--- | :--- | :--- | :---: |
-| **Model & Format** | Llama family INT4 / INT8 | `Llama-3.2-1B-Instruct-SpinQuant_INT4_EO8.pte` (1.13 GB) | `Llama-3.2-1B-Instruct-SpinQuant_INT4_EO8.pte` (1.13 GB) | **EXCEEDED** |
-| **Hardware Backend** | Arm Neon SIMD / NPU | `XNNPACK` (Arm64 Neon SIMD assembly) | `XNNPACK` (Arm64 Neon SIMD assembly) | **ACHIEVED** |
-| **Init / Cold Start** | Fast on-device start | **220 ms – 238 ms** (zero-copy mmap) | **338 ms – 405 ms** (flash mmap) | **EXCEEDED** |
-| **Token Throughput** | $\ge 22.0$ tokens/sec | **42.8 – 50.1 tokens/sec** | **82.6 – 89.7 tokens/sec** | **EXCEEDED** (2x–4x margin) |
-| **Resident RAM (RSS)**| Strictly $< 1800$ MB | **1575 MB – 1592 MB** `RssAnon` (1647 MB PSS) | **1631 MB – 1700 MB** VmRSS | **EXCEEDED** ($>200$ MB headroom) |
-| **Max Context Window** | Standard context | **768 tokens** (high-headroom Indic multi-byte) | **768 tokens** (high-headroom Indic multi-byte) | **ACHIEVED** |
-| **Inline Quiz Grading**| Fast evaluation | **$< 10$ ms** (local Bayesian evaluation) | **$< 10$ ms** (local Bayesian evaluation) | **EXCEEDED** |
-| **Offline Privacy** | 100% Offline | **Verified (`OFFLINE=true` in Airplane Mode)** | **Verified (`OFFLINE=true` in Airplane Mode)** | **ACHIEVED** |
+| **Model & Format** | Llama family INT4 / INT8 | `Llama-3.2-1B-Instruct-SpinQuant_INT4_EO8.pte` (1.13 GB) | Same 1.13 GB `.pte` | **PASS** |
+| **Hardware Backend** | Arm Neon SIMD / NPU | `XNNPACK` (Arm64 Neon SIMD assembly) | `XNNPACK` (Arm64 SIMD) | **ACHIEVED** |
+| **Init / Cold Start** | Fast on-device start | **220 ms – 238 ms** (zero-copy mmap) | 338 ms – 405 ms | **PASS** |
+| **Token Throughput** | $\ge 22.0$ tokens/sec | **42.8 – 50.1 tok/s** (38.4–41.1 tok/s under 8 Mbps capture) | 82.6 – 89.7 tok/s | **PASS (2x margin)** |
+| **Resident RAM (RSS)**| Strictly $< 1800$ MB | **1567 MB – 1592 MB** `RssAnon` (1647 MB PSS) | 1631 MB – 1700 MB `VmRSS` | **PASS (>200 MB margin)** |
+| **Max Context Window** | Standard context | **768 tokens** (`targetSeqLen = 768`) | 768 tokens | **ACHIEVED** |
+| **Inline Quiz Grading**| Fast evaluation | **$< 10$ ms** (local Bayesian evaluation) | $< 10$ ms | **PASS** |
+| **Offline Privacy** | 100% Offline | **Verified (`OFFLINE=true` in Airplane Mode)** | Verified offline | **ACHIEVED** |
 
 ---
 
-## 📱 Visual Walkthrough
+## 📱 Visual Walkthrough (Captured in Airplane Mode)
 
 | Tab 0: AI Socratic Tutor | Tab 1: 20-Skill Prerequisite DAG | Tab 2: Multilingual Quiz Arena |
 | :---: | :---: | :---: |
 | <img src="deliverables/screenshot_tab0_tutor.png" width="280" alt="Tab 0 Tutor"/> | <img src="deliverables/screenshot_tab1_graph.png" width="280" alt="Tab 1 Graph"/> | <img src="deliverables/screenshot_tab2_quiz.png" width="280" alt="Tab 2 Quiz"/> |
-| **TopAppBar Telemetry** (`1587 MB` Resident, `45.8 tok/s`), active Hindi banner, 3-week localized roadmap milestones, and instant inline diagnostic quiz. | **Interactive Skill DAG** with prerequisite dependencies, color-coded mastery progress bars, unlocked/locked states, and dynamic study hour allocation. | **Dedicated Diagnostic Arena** featuring 3-question pools per skill, 4 localized options (A–D), instantaneous BKT grading, and remedial explanations. |
+| **TopAppBar Telemetry** (`38.5 t/s \| 1571 MB Resident` in Airplane Mode), Hindi active course banner, 3-week milestones (`W1–W3`), and cultural analogy. | **Interactive Skill DAG** (`1582 MB Resident` in Airplane Mode), prerequisite lock/unlock badges (`खुला है`), mastery bars, and localized analogies. | **Dedicated Quiz Arena** (`1590 MB Resident` in Airplane Mode), SpinQuant mastered (`89%`), localized Question 2 (`प्रश्न 2 / 3`), and 4 choices. |
 
 ---
 

@@ -110,7 +110,7 @@ sequenceDiagram
       * **Memory Footprint**: **$1575\text{ MB} - 1592\text{ MB}$** `RssAnon` ($1647\text{ MB}$ PSS), leaving $>200\text{ MB}$ safety margin below the $1800\text{ MB}$ ceiling.
       * **Cold-Start Load Time**: **$220\text{ ms} – 238\text{ ms}$**.
       * **Inline Quiz Latency**: **$< 10\text{ ms}$** instant evaluation.
-    * **Google Pixel 9 Reference (Tensor G4 / Cortex-X4 / A720)**:
+    * **Pixel 9 AVD Emulator Baseline (Apple Silicon host)**:
       * **Throughput**: **$82.6$ – $89.7\text{ tok/s}$**.
       * **Memory Footprint**: **$1631\text{ MB}$ idle / $1700\text{ MB}$ peak** VmRSS.
     * **Offline Availability**: Verified `OFFLINE=true` in Airplane Mode via `ConnectivityManager`.
