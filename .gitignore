@@ -1,0 +1,47 @@
+# ==============================================================================
+# Bharat AI-SoC PS4 Repository .gitignore
+# ==============================================================================
+
+# OS & Workspace Metadata
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.vscode/
+
+# Local Heavy & Upstream Development Directories
+models/
+venv/
+executorch/
+executorch-examples/
+.local_archive/
+
+# Large Binary Deliverables & Archives (Distributed via GitHub Releases)
+*.apk
+*.mp4
+*.pte
+*.ptd
+*.zip
+*.tar.gz
+
+# Android & Gradle Build Artifacts
+local.properties
+.gradle/
+build/
+**/build/
+.cxx/
+**/captures/
+**/.externalNativeBuild/
+
+# Python Caches & Logs
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Signing, Credentials & Security
+*.jks
+*.keystore
+.env
+.env.*
